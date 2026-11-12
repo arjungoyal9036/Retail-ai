@@ -138,13 +138,30 @@ def product_as_dict(product: Product) -> dict[str, object]:
     }
 
 
-def search_products(query: str, limit: int = 5) -> list[Product]:
+def product_from_dict(data: dict[str, object]) -> Product:
+    return Product(
+        id=str(data["id"]),
+        name=str(data["name"]),
+        category=str(data["category"]),
+        description=str(data["description"]),
+        price=float(data["price"]),
+        tags=tuple(str(tag) for tag in data["tags"]),
+        popularity=int(data["popularity"]),
+    )
+
+
+def search_products(
+    query: str,
+    limit: int = 5,
+    *,
+    products: tuple[Product, ...] | list[Product] = PRODUCTS,
+) -> list[Product]:
     terms = set(query.casefold().split())
     if not terms:
         return []
 
     matches = []
-    for product in PRODUCTS:
+    for product in products:
         searchable_text = " ".join(
             (product.name, product.category, product.description, *product.tags)
         ).casefold()

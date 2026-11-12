@@ -1,4 +1,13 @@
-from app.catalog import PRODUCT_BY_ID, Product, search_products
+import json
+
+from app.catalog import PRODUCTS, PRODUCT_BY_ID, Product, search_products
+from app.gemini import (
+    GeminiChatResponse,
+    catalog_data,
+    generate_structured_response,
+    gemini_is_configured,
+    select_catalog_products,
+)
 from app.recommendations import recommend_products
 
 
@@ -13,6 +22,9 @@ def respond_to_message(
 
     if budget is None:
         budget = _extract_budget(normalized)
+
+    if gemini_is_configured():
+        return _respond_with_gemini(message, budget=budget, limit=limit)
 
     if any(
         phrase in normalized
@@ -42,6 +54,40 @@ def respond_to_message(
     )
 
 
+def _respond_with_gemini(
+    message: str,
+    *,
+    budget: float | None,
+    limit: int,
+) -> tuple[str, list[Product]]:
+    candidates = [
+        product for product in PRODUCTS if budget is None or product.price <= budget
+    ]
+    response = generate_structured_response(
+        json.dumps(
+            {
+                "customer_message": message,
+                "max_price": budget,
+                "candidate_products": catalog_data(candidates),
+            },
+            ensure_ascii=True,
+        ),
+        GeminiChatResponse,
+        system_instruction=(
+            "You are a helpful retail shopping assistant. Answer the customer's request "
+            "concisely using only the supplied catalog. Select product IDs only from "
+            "candidate_products, and only recommend products that satisfy max_price when "
+            "it is provided. If there are no suitable products, return an empty product_ids "
+            "list and say so. Do not invent prices, product details, stock, or policies."
+        ),
+    )
+    return response.reply, select_catalog_products(
+        response.product_ids,
+        candidates,
+        limit=limit,
+    )
+
+
 def _extract_budget(message: str) -> float | None:
     tokens = message.replace("$", " ").replace(",", " ").split()
     for index, token in enumerate(tokens):
@@ -54,8 +100,14 @@ def _extract_budget(message: str) -> float | None:
     return None
 
 
-def _find_category(message: str) -> str | None:
-    categories = {product.category for product in PRODUCT_BY_ID.values()}
+def _find_category(
+    message: str,
+    products: list[Product] | tuple[Product, ...] | None = None,
+) -> str | None:
+    categories = {
+        product.category
+        for product in (products if products is not None else PRODUCT_BY_ID.values())
+    }
     aliases = {"bag": "bags", "backpack": "bags", "apparel": "clothing"}
     for alias, category in aliases.items():
         if alias in message:

@@ -1,18 +1,17 @@
+import os
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-from pathlib import Path
 
-from app.catalog import PRODUCT_BY_ID, PRODUCTS, product_as_dict, search_products
-from app.chat import respond_to_message
-from app.recommendations import recommend_products
+from services.shared import request_json
 
 app = FastAPI(
-    title="Retail Recommendation & Shopping Assistant",
-    description="A lightweight retail product recommendation and chatbot API.",
-    version="1.0.0",
+    title="Retail Recommendation & Shopping Assistant API Gateway",
+    description="Web storefront and API gateway for the retail microservices.",
+    version="2.0.0",
 )
 
 WEB_INDEX = Path(__file__).parent / "static" / "index.html"
@@ -22,6 +21,11 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
     max_price: float | None = Field(default=None, gt=0)
     limit: int = Field(default=3, ge=1, le=10)
+    user_id: str | None = Field(default=None, max_length=100)
+
+
+class CustomerProfileInput(BaseModel):
+    preferences: list[str] = Field(default_factory=list, max_length=20)
 
 
 @app.get("/", include_in_schema=False)
@@ -35,61 +39,109 @@ def liveness() -> dict[str, str]:
 
 
 @app.get("/health/ready", tags=["health"])
-def readiness() -> dict[str, str]:
+async def readiness() -> dict[str, str]:
+    for service_url in (
+        os.environ.get("CATALOG_SERVICE_URL", "http://catalog-service:8000"),
+        os.environ.get(
+            "RECOMMENDATION_SERVICE_URL",
+            "http://recommendation-service:8000",
+        ),
+        os.environ.get("CHATBOT_SERVICE_URL", "http://chatbot-service:8000"),
+        os.environ.get("CUSTOMER_SERVICE_URL", "http://customer-service:8000"),
+    ):
+        await request_json(service_url, "GET", "/health/ready")
     return {"status": "ready"}
 
 
 @app.get("/api/v1/products", tags=["products"])
-def list_products(
+async def list_products(
     query: str | None = Query(default=None, max_length=200),
     category: str | None = Query(default=None, max_length=50),
     max_price: Annotated[float | None, Query(gt=0)] = None,
     limit: Annotated[int, Query(ge=1, le=50)] = 20,
 ) -> dict[str, object]:
-    products = search_products(query, limit=50) if query else list(PRODUCTS)
-    if category:
-        products = [item for item in products if item.category.casefold() == category.casefold()]
-    if max_price is not None:
-        products = [item for item in products if item.price <= max_price]
-    return {"items": [product_as_dict(item) for item in products[:limit]], "count": min(len(products), limit)}
+    return await request_json(
+        os.environ.get("CATALOG_SERVICE_URL", "http://catalog-service:8000"),
+        "GET",
+        "/api/v1/products",
+        params={
+            key: value
+            for key, value in {
+                "query": query,
+                "category": category,
+                "max_price": max_price,
+                "limit": limit,
+            }.items()
+            if value is not None
+        },
+    )
 
 
 @app.get("/api/v1/products/{product_id}", tags=["products"])
-def get_product(product_id: str) -> dict[str, object]:
-    product = PRODUCT_BY_ID.get(product_id)
-    if product is None:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return product_as_dict(product)
+async def get_product(product_id: str) -> dict[str, object]:
+    return await request_json(
+        os.environ.get("CATALOG_SERVICE_URL", "http://catalog-service:8000"),
+        "GET",
+        f"/api/v1/products/{product_id}",
+    )
 
 
 @app.get("/api/v1/recommendations", tags=["recommendations"])
-def get_recommendations(
+async def get_recommendations(
     product_id: str | None = None,
     category: str | None = Query(default=None, max_length=50),
     preferences: Annotated[list[str] | None, Query()] = None,
     max_price: Annotated[float | None, Query(gt=0)] = None,
+    user_id: str | None = Query(default=None, max_length=100),
     limit: Annotated[int, Query(ge=1, le=10)] = 5,
 ) -> dict[str, object]:
-    if product_id and product_id not in PRODUCT_BY_ID:
-        raise HTTPException(status_code=404, detail="Product not found")
-    products = recommend_products(
-        product_id=product_id,
-        category=category,
-        preferences=preferences,
-        max_price=max_price,
-        limit=limit,
+    params: dict[str, object] = {
+        key: value
+        for key, value in {
+            "product_id": product_id,
+            "category": category,
+            "preferences": preferences,
+            "max_price": max_price,
+            "user_id": user_id,
+            "limit": limit,
+        }.items()
+        if value is not None
+    }
+    return await request_json(
+        os.environ.get("RECOMMENDATION_SERVICE_URL", "http://recommendation-service:8000"),
+        "GET",
+        "/api/v1/recommendations",
+        params=params,
     )
-    return {"items": [product_as_dict(item) for item in products], "count": len(products)}
 
 
 @app.post("/api/v1/chat", tags=["chat"])
-def chat(request: ChatRequest) -> dict[str, object]:
-    reply, products = respond_to_message(
-        request.message,
-        max_price=request.max_price,
-        limit=request.limit,
+async def chat(request: ChatRequest) -> dict[str, object]:
+    return await request_json(
+        os.environ.get("CHATBOT_SERVICE_URL", "http://chatbot-service:8000"),
+        "POST",
+        "/api/v1/chat",
+        json_body=request.model_dump(exclude_none=True),
     )
-    return {
-        "reply": reply,
-        "recommendations": [product_as_dict(item) for item in products],
-    }
+
+
+@app.get("/api/v1/customers/{customer_id}", tags=["customers"])
+async def get_customer(customer_id: str) -> dict[str, object]:
+    return await request_json(
+        os.environ.get("CUSTOMER_SERVICE_URL", "http://customer-service:8000"),
+        "GET",
+        f"/api/v1/customers/{customer_id}",
+    )
+
+
+@app.put("/api/v1/customers/{customer_id}", tags=["customers"])
+async def save_customer(
+    customer_id: str,
+    profile: CustomerProfileInput,
+) -> dict[str, object]:
+    return await request_json(
+        os.environ.get("CUSTOMER_SERVICE_URL", "http://customer-service:8000"),
+        "PUT",
+        f"/api/v1/customers/{customer_id}",
+        json_body=profile.model_dump(),
+    )

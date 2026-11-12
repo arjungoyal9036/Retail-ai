@@ -4,3 +4,6 @@ __pycache__/
 .venv/
 tests/
 .git/
+.env
+.env.*
+!.env.example
