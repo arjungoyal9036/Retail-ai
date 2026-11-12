@@ -31,7 +31,7 @@ GEMINI_API_KEY=your-key
 GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
-Compose passes `.env` to the chatbot and recommendation services. Without a key, both use their local ranking/rule-based behavior. Never commit or share `.env`.
+The `.env` file is optional: Compose starts without it and uses local recommendation/chat behavior when `GEMINI_API_KEY` is unset. When a `.env` file is present, Compose reads it automatically and passes those settings to the chatbot and recommendation services. Never commit or share `.env`.
 
 Stop the services with `Ctrl+C`, then run `docker compose down`. Add `-v` only when you intentionally want to erase the local MongoDB data.
 

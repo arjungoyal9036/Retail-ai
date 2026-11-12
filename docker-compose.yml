@@ -48,8 +48,8 @@ services:
     environment:
       CATALOG_SERVICE_URL: http://catalog-service:8000
       CUSTOMER_SERVICE_URL: http://customer-service:8000
-    env_file:
-      - .env
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
     depends_on:
       - catalog-service
       - customer-service
@@ -59,11 +59,11 @@ services:
     image: retail-assistant:local
     command: ["uvicorn", "services.chatbot.main:app", "--host", "0.0.0.0", "--port", "8000"]
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       CATALOG_SERVICE_URL: http://catalog-service:8000
       RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
     depends_on:
       - catalog-service
       - recommendation-service
