@@ -1,7 +1,9 @@
 from typing import Annotated
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from pathlib import Path
 
 from app.catalog import PRODUCT_BY_ID, PRODUCTS, product_as_dict, search_products
 from app.chat import respond_to_message
@@ -13,11 +15,18 @@ app = FastAPI(
     version="1.0.0",
 )
 
+WEB_INDEX = Path(__file__).parent / "static" / "index.html"
+
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
     max_price: float | None = Field(default=None, gt=0)
     limit: int = Field(default=3, ge=1, le=10)
+
+
+@app.get("/", include_in_schema=False)
+def home() -> FileResponse:
+    return FileResponse(WEB_INDEX)
 
 
 @app.get("/health/live", tags=["health"])

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ef">
+  <title>Field & Form — Thoughtful finds for everyday life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202820;
+      --muted: #73786f;
+      --paper: #f5f4ef;
+      --white: #fffefa;
+      --green: #355b45;
+      --green-dark: #284735;
+      --line: #e6e5dc;
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .announcement { padding: 10px 20px; background: var(--green-dark); color: white; text-align: center; font-size: 11px; letter-spacing: .13em; }
+    header { height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 7.5%; background: var(--white); border-bottom: 1px solid var(--line); }
+    .brand { color: var(--ink); font-family: var(--serif); font-size: 25px; font-weight: 700; letter-spacing: -.06em; text-decoration: none; }
+    .brand span { color: var(--green); }
+    .nav { display: flex; align-items: center; gap: 30px; color: #495148; font-size: 13px; }
+    .nav a { color: inherit; text-decoration: none; }
+    .nav a:hover { color: var(--green); }
+    .header-note { color: var(--muted); font-size: 12px; }
+    main { max-width: 1330px; margin: auto; padding: 0 6% 76px; }
+    .hero { display: grid; grid-template-columns: 1.08fr .92fr; min-height: 360px; overflow: hidden; margin: 34px 0 54px; background: #e7eadf; }
+    .hero-copy { align-self: center; padding: 48px clamp(28px, 6vw, 82px); }
+    .eyebrow { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    h1 { max-width: 520px; margin: 17px 0 14px; font-family: var(--serif); font-size: clamp(36px, 4.5vw, 59px); font-weight: 500; letter-spacing: -.04em; line-height: 1.08; }
+    .hero-copy p { max-width: 420px; margin: 0; color: #62685e; font-size: 14px; line-height: 1.8; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 25px; }
+    .button { display: inline-flex; min-height: 43px; align-items: center; justify-content: center; gap: 8px; padding: 0 19px; border: 1px solid var(--green); background: var(--green); color: white; font-size: 12px; font-weight: 600; text-decoration: none; transition: background .2s, color .2s; }
+    .button:hover { background: var(--green-dark); }
+    .button-outline { background: transparent; color: var(--green); }
+    .button-outline:hover { background: var(--green); color: white; }
+    .hero-art { position: relative; display: grid; min-height: 290px; place-items: center; overflow: hidden; background: linear-gradient(145deg, #dce5d6, #bdcdb9); }
+    .hero-art::before, .hero-art::after { position: absolute; width: 270px; height: 270px; border: 1px solid #ffffff80; border-radius: 50%; content: ""; }
+    .hero-art::after { width: 360px; height: 360px; }
+    .art-card { position: relative; z-index: 1; display: grid; width: min(54%, 210px); aspect-ratio: .83; place-items: center; border: 1px solid #ffffffad; background: linear-gradient(155deg, #708971, #405e4c); box-shadow: 18px 24px 50px #29433145; color: #e2e8de; font-size: 76px; transform: rotate(-7deg); }
+    .art-stamp { position: absolute; right: 12%; bottom: 17%; display: grid; width: 73px; height: 73px; place-items: center; border-radius: 50%; background: #f4eedc; color: var(--green-dark); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-align: center; transform: rotate(12deg); }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+    .section-heading h2 { margin: 7px 0 0; font-family: var(--serif); font-size: 31px; font-weight: 500; letter-spacing: -.03em; }
+    .section-heading p { margin: 0 0 4px; color: var(--muted); font-size: 12px; }
+    .shop-layout { display: grid; grid-template-columns: minmax(0, 1fr) 325px; align-items: start; gap: 30px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .search-wrap { position: relative; flex: 1 1 210px; }
+    .search-icon { position: absolute; top: 50%; left: 13px; color: var(--muted); font-size: 17px; transform: translateY(-53%); }
+    .search { width: 100%; height: 42px; padding: 0 13px 0 38px; border: 1px solid var(--line); outline: none; background: var(--white); font-size: 12px; }
+    .search:focus, .budget-input:focus, .chat-input:focus { border-color: #75917c; box-shadow: 0 0 0 3px #355b4514; }
+    .category-select { height: 42px; min-width: 130px; padding: 0 12px; border: 1px solid var(--line); background: var(--white); color: var(--ink); font-size: 12px; }
+    .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+    .product-card { overflow: hidden; border: 1px solid var(--line); background: var(--white); }
+    .product-art { position: relative; display: grid; min-height: 160px; place-items: center; overflow: hidden; background: var(--card-bg, #e8e8de); color: var(--card-ink, #526553); }
+    .product-art::before { position: absolute; width: 112px; height: 112px; border: 1px solid #ffffff90; border-radius: 50%; content: ""; }
+    .product-art span { z-index: 1; font-size: 54px; transition: transform .25s; }
+    .product-card:hover .product-art span { transform: scale(1.09) rotate(-5deg); }
+    .product-art small { position: absolute; top: 11px; left: 11px; padding: 6px 8px; background: #fffefaed; color: #586351; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+    .product-info { padding: 13px 13px 14px; }
+    .product-category { color: var(--muted); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .product-name { min-height: 36px; margin: 6px 0 9px; font-family: var(--serif); font-size: 16px; font-weight: 600; line-height: 1.2; }
+    .product-bottom { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .product-price { font-size: 13px; font-weight: 700; }
+    .add-button { padding: 6px 8px; border: 1px solid var(--line); background: transparent; color: var(--green); font-size: 10px; font-weight: 700; }
+    .add-button:hover { border-color: var(--green); }
+    .empty-state { grid-column: 1 / -1; padding: 38px 15px; border: 1px dashed #d1d2c8; color: var(--muted); font-size: 13px; text-align: center; }
+    .chat-panel { position: sticky; top: 18px; overflow: hidden; border: 1px solid #dedfd5; background: var(--white); box-shadow: 0 12px 32px #2834270b; }
+    .chat-header { display: flex; align-items: center; gap: 12px; padding: 17px; background: #eef0e8; }
+    .bot-avatar { display: grid; width: 37px; height: 37px; place-items: center; border-radius: 50%; background: var(--green); color: white; font-size: 18px; }
+    .chat-title { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+    .chat-subtitle { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .online-dot { width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: #729269; box-shadow: 0 0 0 3px #72926920; }
+    .chat-messages { display: flex; min-height: 215px; max-height: 390px; flex-direction: column; gap: 12px; overflow-y: auto; padding: 16px; }
+    .message { max-width: 91%; padding: 10px 12px; border-radius: 2px 12px 12px 12px; background: #f0f1ec; color: #40473f; font-size: 11px; line-height: 1.65; white-space: pre-wrap; }
+    .message.user { align-self: flex-end; border-radius: 12px 2px 12px 12px; background: var(--green); color: white; }
+    .message.error { color: #983d32; }
+    .chat-suggestions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 13px; }
+    .suggestion { padding: 7px 9px; border: 1px solid #dfe1d7; border-radius: 99px; background: transparent; color: #566450; font-size: 9px; }
+    .suggestion:hover { border-color: var(--green); }
+    .chat-form { display: flex; gap: 7px; padding: 13px; border-top: 1px solid var(--line); }
+    .chat-input { width: 100%; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--line); outline: none; background: #fff; font-size: 11px; }
+    .send-button { width: 42px; flex: 0 0 42px; border: 0; background: var(--green); color: white; font-size: 16px; }
+    .chat-note { padding: 0 14px 13px; color: #92958d; font-size: 9px; text-align: center; }
+    .chat-products { width: 100%; max-width: 100%; }
+    .chat-product { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 7px; padding-top: 7px; border-top: 1px solid #dfe1d7; }
+    .chat-product-name { font-weight: 600; }
+    .chat-product-price { flex: 0 0 auto; color: var(--green-dark); font-weight: 700; }
+    .toast { position: fixed; right: 25px; bottom: 25px; z-index: 3; padding: 13px 18px; background: var(--green-dark); color: white; box-shadow: 0 8px 26px #0002; font-size: 12px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    footer { display: flex; justify-content: space-between; gap: 12px; padding: 21px 7.5%; border-top: 1px solid var(--line); background: var(--white); color: var(--muted); font-size: 10px; }
+    @media (max-width: 1020px) {
+      .shop-layout { grid-template-columns: minmax(0, 1fr) 290px; gap: 18px; }
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      header { padding: 0 5%; }
+    }
+    @media (max-width: 720px) {
+      header { height: 62px; }
+      .nav { gap: 14px; font-size: 11px; }
+      .header-note { display: none; }
+      main { padding: 0 5% 50px; }
+      .hero { grid-template-columns: 1fr; margin: 18px 0 40px; }
+      .hero-copy { padding: 34px 27px; }
+      .hero-art { min-height: 185px; }
+      .art-card { width: 120px; }
+      .art-stamp { right: 18%; bottom: 14%; }
+      .shop-layout { grid-template-columns: 1fr; }
+      .chat-panel { position: static; grid-row: 1; }
+      .chat-messages { min-height: 175px; max-height: 270px; }
+      .section-heading h2 { font-size: 27px; }
+      footer { padding: 18px 5%; }
+    }
+    @media (max-width: 390px) {
+      .nav { gap: 9px; font-size: 10px; }
+      .brand { font-size: 22px; }
+      .product-grid { gap: 9px; }
+      .product-art { min-height: 130px; }
+      .product-info { padding: 10px; }
+      .product-name { font-size: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement">COMPLIMENTARY SHIPPING ON ORDERS OVER $75 &nbsp;·&nbsp; THOUGHTFULLY CHOSEN, MADE TO LAST</div>
+  <header>
+    <a class="brand" href="#" aria-label="Field and Form home">field<span>&</span>form</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#shop">Shop all</a>
+      <a href="#shop" data-category-link="home">Home</a>
+      <a href="#shop" data-category-link="clothing">Clothing</a>
+      <a href="#shop" data-category-link="bags">Bags</a>
+    </nav>
+    <div class="header-note">Little things, thoughtfully made.</div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow">A slower kind of shopping</div>
+        <h1 id="hero-title">Find your new everyday favorite.</h1>
+        <p>Considered essentials for home, travel and all the in-between. Good things, chosen with care.</p>
+        <div class="hero-actions">
+          <a class="button" href="#shop">Explore the collection <span aria-hidden="true">→</span></a>
+          <a class="button button-outline" href="#assistant">Ask our shop guide</a>
+        </div>
+      </div>
+      <div class="hero-art" role="img" aria-label="A forest green everyday bag">
+        <div class="art-card" aria-hidden="true">✳</div>
+        <div class="art-stamp">MADE FOR<br>EVERY DAY</div>
+      </div>
+    </section>
+
+    <section id="shop" aria-labelledby="shop-heading">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">The good stuff</div>
+          <h2 id="shop-heading">Shop the collection</h2>
+        </div>
+        <p id="result-count" aria-live="polite"></p>
+      </div>
+      <div class="shop-layout">
+        <div>
+          <div class="toolbar">
+            <label class="search-wrap">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="search" class="search" type="search" placeholder="Search the collection..." aria-label="Search products">
+            </label>
+            <label>
+              <span class="eyebrow" style="position:absolute;clip:rect(0,0,0,0)">Category</span>
+              <select id="category" class="category-select" aria-label="Filter by category">
+                <option value="">All categories</option>
+                <option value="bags">Bags</option>
+                <option value="clothing">Clothing</option>
+                <option value="home">Home</option>
+                <option value="electronics">Electronics</option>
+              </select>
+            </label>
+          </div>
+          <div id="product-grid" class="product-grid" aria-live="polite"></div>
+        </div>
+
+        <aside id="assistant" class="chat-panel" aria-label="Shopping assistant">
+          <div class="chat-header">
+            <div class="bot-avatar" aria-hidden="true">✳</div>
+            <div>
+              <div class="chat-title">Your personal shop guide</div>
+              <div class="chat-subtitle">Tell me what you're looking for</div>
+            </div>
+            <span class="online-dot" aria-label="Online"></span>
+          </div>
+          <div id="chat-messages" class="chat-messages" role="log" aria-live="polite">
+            <div class="message">Hello there! Need a hand finding something? Tell me what you have in mind and I'll find a few lovely options.</div>
+          </div>
+          <div class="chat-suggestions" aria-label="Try asking">
+            <button class="suggestion" type="button" data-prompt="I need a travel bag under 100">Travel bag under $100</button>
+            <button class="suggestion" type="button" data-prompt="Recommend something cozy for home">Cozy things for home</button>
+            <button class="suggestion" type="button" data-prompt="Show me coffee gifts">Coffee & gifts</button>
+          </div>
+          <form id="chat-form" class="chat-form">
+            <label style="flex:1;min-width:0">
+              <span class="eyebrow" style="position:absolute;clip:rect(0,0,0,0)">Your message</span>
+              <input id="chat-input" class="chat-input" type="text" maxlength="1000" placeholder="I'm looking for..." autocomplete="off" required>
+            </label>
+            <button class="send-button" type="submit" aria-label="Send message">↑</button>
+          </form>
+          <div class="chat-note">A little shopping inspiration, powered by our product guide.</div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <span>field&form — Thoughtful finds for everyday life.</span>
+    <span>Made for the little moments.</span>
+  </footer>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    const grid = document.getElementById("product-grid");
+    const searchInput = document.getElementById("search");
+    const categorySelect = document.getElementById("category");
+    const chatMessages = document.getElementById("chat-messages");
+    const chatInput = document.getElementById("chat-input");
+    const resultCount = document.getElementById("result-count");
+    const toast = document.getElementById("toast");
+    const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+    const categoryStyles = {
+      bags: ["#e6e9df", "#49604d", "♧"],
+      clothing: ["#e9e3dd", "#805f50", "✳"],
+      home: ["#e4e9e5", "#587367", "⌂"],
+      electronics: ["#e3e5e9", "#536078", "◉"],
+    };
+    const searchIcon = (product) => categoryStyles[product.category] || categoryStyles.home;
+    let toastTimer;
+    let requestNumber = 0;
+
+    async function fetchProducts() {
+      const params = new URLSearchParams();
+      const query = searchInput.value.trim();
+      if (query) params.set("query", query);
+      if (categorySelect.value) params.set("category", categorySelect.value);
+      grid.setAttribute("aria-busy", "true");
+      try {
+        const response = await fetch(`/api/v1/products?${params}`);
+        if (!response.ok) throw new Error("Products could not be loaded.");
+        const payload = await response.json();
+        renderProducts(payload.items);
+        resultCount.textContent = `${payload.count} thoughtfully chosen ${payload.count === 1 ? "find" : "finds"}`;
+      } catch (error) {
+        grid.replaceChildren();
+        const message = document.createElement("p");
+        message.className = "empty-state";
+        message.textContent = error.message || "Something went wrong while loading products.";
+        grid.append(message);
+        resultCount.textContent = "";
+      } finally {
+        grid.setAttribute("aria-busy", "false");
+      }
+    }
+
+    function renderProducts(products) {
+      grid.replaceChildren();
+      if (!products.length) {
+        const empty = document.createElement("p");
+        empty.className = "empty-state";
+        empty.textContent = "No finds just yet. Try another search or category.";
+        grid.append(empty);
+        return;
+      }
+      for (const product of products) {
+        const [background, foreground, symbol] = searchIcon(product);
+        const card = document.createElement("article");
+        card.className = "product-card";
+        const art = document.createElement("div");
+        art.className = "product-art";
+        art.style.setProperty("--card-bg", background);
+        art.style.setProperty("--card-ink", foreground);
+        const emblem = document.createElement("span");
+        emblem.setAttribute("aria-hidden", "true");
+        emblem.textContent = symbol;
+        const badge = document.createElement("small");
+        badge.textContent = product.popularity >= 90 ? "A favorite" : "Made to enjoy";
+        art.append(emblem, badge);
+        const info = document.createElement("div");
+        info.className = "product-info";
+        const category = document.createElement("div");
+        category.className = "product-category";
+        category.textContent = product.category;
+        const name = document.createElement("h3");
+        name.className = "product-name";
+        name.textContent = product.name;
+        const bottom = document.createElement("div");
+        bottom.className = "product-bottom";
+        const price = document.createElement("span");
+        price.className = "product-price";
+        price.textContent = money.format(product.price);
+        const addButton = document.createElement("button");
+        addButton.className = "add-button";
+        addButton.type = "button";
+        addButton.textContent = "♡ Save for later";
+        addButton.setAttribute("aria-label", `Save ${product.name} for later`);
+        addButton.addEventListener("click", () => showToast(`${product.name} saved for later`));
+        bottom.append(price, addButton);
+        info.append(category, name, bottom);
+        card.append(art, info);
+        grid.append(card);
+      }
+    }
+
+    function appendMessage(text, kind = "") {
+      const message = document.createElement("div");
+      message.className = `message ${kind}`.trim();
+      message.textContent = text;
+      chatMessages.append(message);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return message;
+    }
+
+    async function sendMessage(text) {
+      const message = text.trim();
+      if (!message) return;
+      const currentRequest = ++requestNumber;
+      appendMessage(message, "user");
+      chatInput.value = "";
+      chatInput.disabled = true;
+      const pending = appendMessage("Let me have a look…");
+      try {
+        const response = await fetch("/api/v1/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, limit: 3 }),
+        });
+        if (!response.ok) throw new Error("I couldn't reach the shop guide just now. Please try again.");
+        const payload = await response.json();
+        if (currentRequest !== requestNumber) return;
+        pending.remove();
+        appendMessage(payload.reply);
+        if (payload.recommendations.length) appendChatProducts(payload.recommendations);
+      } catch (error) {
+        pending.remove();
+        appendMessage(error.message || "Something went wrong. Please try again.", "error");
+      } finally {
+        chatInput.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    function appendChatProducts(products) {
+      const list = document.createElement("div");
+      list.className = "message chat-products";
+      for (const product of products) {
+        const row = document.createElement("div");
+        row.className = "chat-product";
+        const name = document.createElement("span");
+        name.className = "chat-product-name";
+        name.textContent = product.name;
+        const price = document.createElement("span");
+        price.className = "chat-product-price";
+        price.textContent = money.format(product.price);
+        row.append(name, price);
+        list.append(row);
+      }
+      chatMessages.append(list);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
+    }
+
+    let searchTimer;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(fetchProducts, 180);
+    });
+    categorySelect.addEventListener("change", fetchProducts);
+    document.querySelectorAll("[data-category-link]").forEach((link) => {
+      link.addEventListener("click", () => { categorySelect.value = link.dataset.categoryLink; fetchProducts(); });
+    });
+    document.getElementById("chat-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage(chatInput.value);
+    });
+    document.querySelectorAll("[data-prompt]").forEach((button) => {
+      button.addEventListener("click", () => sendMessage(button.dataset.prompt));
+    });
+    fetchProducts();
+  </script>
+</body>
+</html>

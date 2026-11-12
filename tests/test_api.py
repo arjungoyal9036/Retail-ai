@@ -65,3 +65,11 @@ def test_chat_rejects_empty_message() -> None:
 def test_health_endpoints() -> None:
     assert client.get("/health/live").json() == {"status": "ok"}
     assert client.get("/health/ready").json() == {"status": "ready"}
+
+
+def test_homepage_serves_retail_web_interface() -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "field&amp;form" in response.text or "field&form" in response.text
+    assert "/api/v1/products" in response.text

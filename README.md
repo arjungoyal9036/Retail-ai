@@ -4,8 +4,11 @@ Retail Recommendation & Shopping Assistant
 
 A small Python/FastAPI application that serves a sample retail catalog, product recommendations, and a conversational shopping assistant. The catalog and ranking logic are intentionally in-memory so the project runs locally without a database or external AI service.
 
+Visit `http://localhost:8000` for the responsive storefront. It supports live product search and category filters, with the shopping assistant alongside the collection.
+
 ## Features
 
+- Responsive storefront at `/` connected to the product and chat APIs.
 - Search and filter a sample catalog by text, category, and price.
 - Recommend products by similar item, category, preferences, and budget.
 - Chat endpoint that interprets simple shopping requests and returns matching products.
